@@ -15,8 +15,9 @@ classifiers = [
 Changelog = "https://github.com/DiogenesAnalytics/autoencoder/releases"
 
 [tool.poetry.dependencies]
-python = "^3.9"
+python = ">=3.9,<3.12"
 click = ">=8.0.1"
+tensorflow = ">=2.15.0"
 
 [tool.poetry.group.dev]
 optional = true
@@ -70,6 +71,10 @@ warn_unreachable = true
 pretty = true
 show_column_numbers = true
 show_error_context = true
+
+[[tool.mypy.overrides]]
+module = ["tensorflow.*"]
+ignore_missing_imports = true
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]
