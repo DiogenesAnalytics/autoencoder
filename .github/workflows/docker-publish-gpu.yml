@@ -30,6 +30,9 @@ jobs:
       id-token: write
 
     steps:
+      - name: Maximize build disk space
+        uses: easimon/maximize-build-space@v10
+            
       - name: Checkout repository
         uses: actions/checkout@v3
 
@@ -64,15 +67,6 @@ jobs:
         uses: docker/metadata-action@96383f45573cb7f253c731d3b3ab81c87ef81934 # v5.0.0
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-
-      # Attempt to free up space
-      - name: free disk space
-        run: |
-          sudo swapoff -a
-          sudo rm -f /swapfile
-          sudo apt clean
-          docker rmi $(docker image ls -aq)
-          df -h
 
       # Build and push Docker image with Buildx (don't push on PR)
       # https://github.com/docker/build-push-action
