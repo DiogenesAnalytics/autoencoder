@@ -17,7 +17,7 @@ Changelog = "https://github.com/DiogenesAnalytics/autoencoder/releases"
 [tool.poetry.dependencies]
 python = ">=3.9,<3.12"
 click = ">=8.0.1"
-tensorflow = ">=2.15.0"
+tensorflow = {extras = ["and-cuda"], version = ">=2.14.0"}
 
 [tool.poetry.group.dev]
 optional = true

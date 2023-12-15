@@ -31,9 +31,6 @@ RUN mamba install -y -c conda-forge cudatoolkit=11.8.0 && \
     fix-permissions "${CONDA_DIR}" && \
     fix-permissions "/home/${NB_USER}"
 
-# install separate pip libraries
-RUN pip install nvidia-cudnn-cu11==8.6.0.163
-
 # setting up CUDA library link
 RUN export CUDNN_PATH=$(dirname \
     $(python -c "import nvidia.cudnn;print(nvidia.cudnn.__file__)")) && \
