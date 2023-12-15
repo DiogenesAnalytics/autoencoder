@@ -7,10 +7,10 @@ from typing import Dict
 from typing import Generator
 from typing import Optional
 from typing import Tuple
-from typing import TypeAlias
 
 import keras
 from keras.layers import Layer
+from typing_extensions import TypeAlias
 
 
 # custom types
