@@ -25,6 +25,9 @@ RUN poetry install --with dev -C .
 # additional GPU-enabled steps
 FROM cpu-only as gpu-enabled
 
+# get mvp gpu cuda libs
+RUN poetry install -E gpu-min
+
 # install CUDA tools
 RUN mamba install -y -c conda-forge cudatoolkit=11.8.0 && \
     mamba clean --all -f -y && \

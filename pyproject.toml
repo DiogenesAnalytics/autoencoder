@@ -17,7 +17,37 @@ Changelog = "https://github.com/DiogenesAnalytics/autoencoder/releases"
 [tool.poetry.dependencies]
 python = ">=3.9,<3.12"
 click = ">=8.0.1"
-tensorflow = {extras = ["and-cuda"], version = ">=2.14.0"}
+keras = "~2.14"
+tensorflow = "~2.14"
+nvidia-cublas-cu11 = { version = "11.11.3.6", optional=true }
+nvidia-cuda-cupti-cu11 = { version = "11.8.87", optional=true }
+nvidia-cuda-nvcc-cu11  = { version = "11.8.89", optional=true }
+nvidia-cuda-runtime-cu11 = { version = "11.8.89", optional=true }
+nvidia-cudnn-cu11 = { version = "8.7.0.84", optional=true }
+nvidia-cufft-cu11 = { version = "10.9.0.58", optional=true }
+nvidia-curand-cu11 = { version = "10.3.0.86", optional = true }
+nvidia-cusolver-cu11 = { version = "11.4.1.48", optional = true }
+nvidia-cusparse-cu11 = { version = "11.7.5.86", optional = true }
+nvidia-nccl-cu11 = { version = "2.16.5", optional = true }
+tensorrt = { version = "8.5.3.1", optional = true }
+
+[tool.poetry.extras]
+gpu-min = [
+  "nvidia-cudnn-cu11",
+]
+gpu-max = [
+  "nvidia-cublas-cu11",
+  "nvidia-cuda-cupti-cu11",
+  "nvidia-cuda-nvcc-cu11",
+  "nvidia-cuda-runtime-cu11",
+  "nvidia-cudnn-cu11",
+  "nvidia-cufft-cu11",
+  "nvidia-curand-cu11",
+  "nvidia-cusolver-cu11",
+  "nvidia-cusparse-cu11",
+  "nvidia-nccl-cu11",
+  "tensorrt",
+]
 
 [tool.poetry.group.dev]
 optional = true
