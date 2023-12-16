@@ -2,6 +2,7 @@
 from abc import ABC
 from abc import abstractmethod
 from dataclasses import dataclass
+from inspect import signature
 from typing import Any
 from typing import Dict
 from typing import Generator
@@ -20,6 +21,18 @@ DefaultParams: TypeAlias = Dict[str, Tuple[Layer, Dict[str, Any]]]
 class BaseLayerParams(ABC):
     """Autoencoder layers hyperparameters configuration base class."""
 
+    @abstractmethod
+    def __init__(self, **kwargs: Dict[str, Any]) -> None:
+        """Defines the argument type that the constructor should accept."""
+        pass
+
+    @property
+    @abstractmethod
+    def default_parameters(self) -> DefaultParams:
+        """Defines the required default layer parameters attribute."""
+        # NOTE: this dictionary sets layer order used to build the keras.Model
+        pass
+
     def __post_init__(self) -> None:
         """Store updated params and get sequence index slices."""
         # get updated parameters for instance
@@ -27,12 +40,18 @@ class BaseLayerParams(ABC):
 
     def _filter_layer_attrs(self) -> Generator[Tuple[str, Dict[str, Any]], None, None]:
         """Filter out layer attributes from class instance."""
-        # get all attributes and values in class instance namespace
-        for attr, value in self.__dict__.items():
-            # make sure attribute name is in default parameters
-            if attr in self.default_parameters.keys():
-                # generate tuple pairs
-                yield attr, value
+        # get constructor signature
+        init_sig = signature(self.__class__.__init__)
+
+        # loop over layer_name/params in defaults
+        for layer_id in self.default_parameters.keys():
+            # now find corresponding layer_id in constructor args
+            assert (
+                layer_id in init_sig.parameters.keys()
+            ), "Constructor arguments must match default_parameter dict keys."
+
+            # finally get value of constructor args
+            yield layer_id, self.__dict__[layer_id]
 
     def _update_layer_params(
         self,
@@ -54,12 +73,6 @@ class BaseLayerParams(ABC):
     def _build_instance_params(self) -> Tuple[Tuple[Layer, Dict[str, Any]], ...]:
         """Create mutable sequence of layer params for instance."""
         return tuple(self._update_layer_params())
-
-    @property
-    @abstractmethod
-    def default_parameters(self) -> DefaultParams:
-        """Defines the required default layer parameters attribute."""
-        pass
 
 
 @dataclass
