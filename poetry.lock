@@ -2425,10 +2425,10 @@ docs = ["furo", "jaraco.packaging (>=9.3)", "jaraco.tidelift (>=1.4)", "rst.link
 testing = ["big-O", "jaraco.functools", "jaraco.itertools", "more-itertools", "pytest (>=6)", "pytest-black (>=0.3.7)", "pytest-checkdocs (>=2.4)", "pytest-cov", "pytest-enabler (>=2.2)", "pytest-ignore-flaky", "pytest-mypy (>=0.9.1)", "pytest-ruff"]
 
 [extras]
-gpu-all = ["nvidia-cublas-cu11", "nvidia-cuda-cupti-cu11", "nvidia-cuda-nvcc-cu11", "nvidia-cuda-runtime-cu11", "nvidia-cudnn-cu11", "nvidia-cufft-cu11", "nvidia-curand-cu11", "nvidia-cusolver-cu11", "nvidia-cusparse-cu11", "nvidia-nccl-cu11", "tensorrt"]
+gpu-max = ["nvidia-cublas-cu11", "nvidia-cuda-cupti-cu11", "nvidia-cuda-nvcc-cu11", "nvidia-cuda-runtime-cu11", "nvidia-cudnn-cu11", "nvidia-cufft-cu11", "nvidia-curand-cu11", "nvidia-cusolver-cu11", "nvidia-cusparse-cu11", "nvidia-nccl-cu11", "tensorrt"]
 gpu-min = ["nvidia-cudnn-cu11"]
 
 [metadata]
 lock-version = "2.0"
 python-versions = ">=3.9,<3.12"
-content-hash = "c65597dfc6d9e8a9198714edf706ef89db30c777910c8fec12b021355fd6a06f"
+content-hash = "8045e0cbf87e9154aa8101bf20731cde5271623904a5e880db5cc076c73226b4"
