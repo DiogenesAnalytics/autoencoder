@@ -34,6 +34,10 @@ class Decode(MetaLayer):
     """Designate a meta layer as a decoding layer."""
 
 
+class Inputs(MetaLayer):
+    """Designate a meta layer as an input layer."""
+
+
 class BaseModelParams(ABC):
     """Autoencoder model layer hyperparameters configuration base class."""
 
@@ -73,19 +77,33 @@ class BaseModelParams(ABC):
         """Update default layer parameters values."""
         # get layer instance attrs and their values
         for attr, value in self._filter_layer_attrs():
-            # unpack default parameters
-            layer, params = self.default_parameters[attr]
+            # get meta layer object
+            meta_layer = self.default_parameters[attr]
 
             # get copy of default params
-            default_params_copy = params.copy()
+            default_params_copy = meta_layer.params.copy()
 
             # check if none
             if value is not None:
                 # update default with any user supplied kwargs
                 default_params_copy |= value
 
-            # generate
-            yield MetaLayer(layer, default_params_copy)
+            # add labels
+            if "name" not in default_params_copy:
+                # just use attribute from constructor signature
+                default_params_copy["name"] = attr
+            else:
+                # get name
+                old_name = default_params_copy["name"]
+
+                # add id to front of name
+                default_params_copy["name"] = f"{attr}.{old_name}"
+
+            # get type of meta layer
+            layer_type = type(meta_layer)
+
+            # generate new meta layer object
+            yield layer_type(meta_layer.layer, default_params_copy)
 
     def _build_instance_params(self) -> Tuple[MetaLayer, ...]:
         """Create mutable sequence of layer params for instance."""
@@ -116,12 +134,51 @@ class BaseAutoencoder(ABC):
 
     def _build_model(self) -> keras.Model:
         """Assemple autoencoder from encoder/decoder submodels."""
-        # get pointer to instance parameters
+        # chcek model config exists
         assert self.model_config is not None
-        inst_params = self.model_config._instance_parameters
 
-        # build model ...
-        return keras.Sequential([layer(**params) for layer, params in inst_params])
+        # setup layer reference caches
+        encode_layers, decode_layers, all_layers = [], [], []
+
+        # loop over meta_layers
+        for meta_layer in self.model_config._instance_parameters:
+            # get components
+            layer_constructor, params = meta_layer
+
+            # instantiate layer
+            layer = layer_constructor(**params)
+
+            # check layer type
+            if isinstance(meta_layer, Encode):
+                # add to encode layers
+                encode_layers.append(layer)
+
+            elif isinstance(meta_layer, Decode):
+                # add to encode layers
+                decode_layers.append(layer)
+
+            elif isinstance(meta_layer, Inputs):
+                # add to total autoencoder layer
+                all_layers.append(layer)
+
+            else:
+                # get unknown type
+                wrong_type = type(meta_layer)
+
+                # notify user
+                raise TypeError(
+                    f"Layer type must be Encode, Decode, or Inputs not {wrong_type}."
+                )
+
+        # build encoder/decoder models ...
+        self._encoder = keras.Sequential(encode_layers, name="Encoder")
+        self._decoder = keras.Sequential(decode_layers, name="Decoder")
+
+        # add encoder/decoder models to all layers
+        all_layers += [self._encoder, self._decoder]
+
+        # ... and finally the full autoencoder
+        return keras.Sequential(all_layers, name=f"{self.__class__.__name__}")
 
     def summary(self, **kwargs: Any) -> None:
         """Wrapper for Keras model.summary method."""
