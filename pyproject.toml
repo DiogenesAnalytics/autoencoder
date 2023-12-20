@@ -103,7 +103,7 @@ show_column_numbers = true
 show_error_context = true
 
 [[tool.mypy.overrides]]
-module = ["tensorflow.*", "keras.*"]
+module = ["tensorflow.*", "keras.*", "matplotlib.*"]
 ignore_missing_imports = true
 
 [build-system]

@@ -13,6 +13,8 @@ from typing import Tuple
 import keras
 from keras.layers import Layer
 
+from ..data.visualize import training_loss_history
+
 
 @dataclass
 class MetaLayer:
@@ -190,8 +192,16 @@ class BaseAutoencoder(ABC):
 
     def fit(self, **kwargs: Any) -> keras.callbacks.History:
         """Wrapper for the Keras model.fit method."""
-        return self.model.fit(**kwargs)
+        # store history
+        self._history = self.model.fit(**kwargs)
+
+        # also return it
+        return self._history
 
     def predict(self, **kwargs: Any) -> Any:
         """Wrapper for the Keras model.predict method."""
         return self.model.predict(**kwargs)
+
+    def training_history(self) -> None:
+        """Wrapper for visualizing training history in matplotlib."""
+        training_loss_history(self._history.history, self.__class__.__name__)
