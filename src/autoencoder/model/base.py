@@ -191,3 +191,7 @@ class BaseAutoencoder(ABC):
     def fit(self, **kwargs: Any) -> keras.callbacks.History:
         """Wrapper for the Keras model.fit method."""
         return self.model.fit(**kwargs)
+
+    def predict(self, **kwargs: Any) -> Any:
+        """Wrapper for the Keras model.predict method."""
+        return self.model.predict(**kwargs)
