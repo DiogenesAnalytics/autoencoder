@@ -188,6 +188,6 @@ class BaseAutoencoder(ABC):
         """Wrapper for Keras model.compile method."""
         self.model.compile(**kwargs)
 
-    def fit(self, **kwargs: Any) -> None:
+    def fit(self, **kwargs: Any) -> keras.callbacks.History:
         """Wrapper for the Keras model.fit method."""
-        self.model.fit(**kwargs)
+        return self.model.fit(**kwargs)
