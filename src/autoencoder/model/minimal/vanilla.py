@@ -1,4 +1,8 @@
 """A simple autoencoder to get you started."""
+__all__ = [
+    "MinimalAutoencoder",
+    "MinimalParams",
+]
 from dataclasses import dataclass
 from typing import Any
 from typing import ClassVar
@@ -7,12 +11,12 @@ from typing import Optional
 
 from keras import layers
 
-from .base import BaseAutoencoder
-from .base import BaseModelParams
-from .base import Decode
-from .base import Encode
-from .base import Inputs
-from .base import MetaLayer
+from ..base import BaseAutoencoder
+from ..base import BaseModelParams
+from ..base import Decode
+from ..base import Encode
+from ..base import Inputs
+from ..base import MetaLayer
 
 
 @dataclass
