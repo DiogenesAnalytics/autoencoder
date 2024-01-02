@@ -1,9 +1,14 @@
 """For displaying/plotting/graphing and any other data visualization need."""
+from pathlib import Path
 from typing import Any
 from typing import Dict
 from typing import List
+from typing import Optional
+from typing import Tuple
+from typing import Union
 
 import matplotlib.pyplot as plt
+import tensorflow as tf
 from numpy.typing import NDArray
 
 
@@ -50,3 +55,81 @@ def compare_image_predictions(
 
     # final plt
     plt.show()
+
+
+def plot_error_distribution(
+    errors: Union[Tuple[float, ...], List[float]],
+    threshold: float,
+    bins: int,
+    title: str,
+) -> None:
+    """Plot a simple histogram for the reconstruction error."""
+    # create histogram plot
+    plt.hist(errors, bins=bins)
+
+    # add title
+    plt.title(title)
+
+    # label axes
+    plt.xlabel("Reconstruction Error")
+    plt.ylabel("# Samples")
+
+    # plotting threshold
+    plt.axvline(x=threshold, color="r", linestyle="dashed", linewidth=2)
+
+    # display histogram
+    plt.show()
+
+
+def plot_anomalous_images(
+    inputs: tf.Tensor,
+    predictions: tf.Tensor,
+    mse: tf.Tensor,
+    threshold: float,
+    batch_id: int,
+    output_path: Optional[Union[str, Path]] = None,
+) -> None:
+    """Build, display, and optionally save anomalous images."""
+    # loop over indexes of anomalous tensors
+    for anomaly_idx in tf.where(mse > threshold):
+        # convert to scalar
+        scalar_idx = anomaly_idx[0]
+
+        # plot original
+        plt.figure()
+        plt.subplot(1, 2, 1)
+        plt.title(f"Original Image (Error: {mse[scalar_idx]:.4f})")
+        plt.imshow(
+            tf.clip_by_value(tf.convert_to_tensor(inputs)[scalar_idx], 0.0, 1.0).numpy()
+            * 255.0,
+            cmap="gray",
+            vmin=0,
+            vmax=255,
+        )
+
+        # plot reconstructed
+        plt.subplot(1, 2, 2)
+        plt.title("Reconstructed Image")
+        plt.imshow(
+            tf.clip_by_value(
+                tf.convert_to_tensor(predictions)[scalar_idx], 0.0, 1.0
+            ).numpy()
+            * 255.0,
+            cmap="gray",
+            vmin=0,
+            vmax=255,
+        )
+
+        # save if configured
+        if output_path is not None:
+            # create file name
+            file_name = f"anomaly_{batch_id}_{scalar_idx}.png"
+
+            # save to outputpath
+            plt.savefig(Path(output_path) / file_name)
+
+        # show
+        plt.show()
+
+    # close after plot
+    plt.close()
