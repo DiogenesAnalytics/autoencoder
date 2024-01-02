@@ -1,16 +1,16 @@
 """Implemented autoencoder models."""
 __all__ = [
-    "ConvolutionalAutoencoder",
-    "ConvolutionalParams",
-    "DeepAutoencoder",
+    "ConvAE",
+    "ConvParams",
+    "DeepAE",
     "DeepParams",
-    "MinimalAutoencoder",
-    "MinimalParams",
+    "MinAE",
+    "MinParams",
 ]
 
-from .convolutional import ConvolutionalAutoencoder
-from .convolutional import ConvolutionalParams
-from .deep import DeepAutoencoder
+from .convolutional import ConvAE
+from .convolutional import ConvParams
+from .deep import DeepAE
 from .deep import DeepParams
-from .minimal import MinimalAutoencoder
-from .minimal import MinimalParams
+from .minimal import MinAE
+from .minimal import MinParams

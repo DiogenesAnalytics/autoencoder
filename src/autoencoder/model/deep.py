@@ -40,7 +40,7 @@ class DeepParams(BaseModelParams):
     l6: Optional[Dict[str, Any]] = None
 
 
-class DeepAutoencoder(BaseAutoencoder):
+class DeepAE(BaseAutoencoder):
     """Getting deep into autoencoders."""
 
     _default_config = DeepParams()

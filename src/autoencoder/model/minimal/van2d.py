@@ -1,6 +1,6 @@
 """A simple autoencoder to get you started."""
 __all__ = [
-    "Minimal2DAutoencoder",
+    "Min2DAE",
     "Min2DParams",
 ]
 from dataclasses import dataclass
@@ -40,7 +40,7 @@ class Min2DParams(BaseModelParams):
     l4: Optional[Dict[str, Any]] = None
 
 
-class Minimal2DAutoencoder(BaseAutoencoder):
+class Min2DAE(BaseAutoencoder):
     """A simple autoencoder to get you started."""
 
     _default_config = Min2DParams()

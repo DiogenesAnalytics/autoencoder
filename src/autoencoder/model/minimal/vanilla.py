@@ -1,7 +1,7 @@
 """A simple autoencoder to get you started."""
 __all__ = [
-    "MinimalAutoencoder",
-    "MinimalParams",
+    "MinAE",
+    "MinParams",
 ]
 from dataclasses import dataclass
 from typing import Any
@@ -20,7 +20,7 @@ from ..base import MetaLayer
 
 
 @dataclass
-class MinimalParams(BaseModelParams):
+class MinParams(BaseModelParams):
     """Layer parameters class for minimal autoencoder."""
 
     # default values from: https://blog.keras.io/building-autoencoders-in-keras.html
@@ -36,12 +36,12 @@ class MinimalParams(BaseModelParams):
     l2: Optional[Dict[str, Any]] = None
 
 
-class MinimalAutoencoder(BaseAutoencoder):
+class MinAE(BaseAutoencoder):
     """A simple autoencoder to get you started."""
 
-    _default_config = MinimalParams()
+    _default_config = MinParams()
 
-    def __init__(self, model_config: Optional[MinimalParams] = None) -> None:
+    def __init__(self, model_config: Optional[MinParams] = None) -> None:
         """Overrided base constructor to set the layer params class used."""
         # call super
         super().__init__(model_config=model_config)

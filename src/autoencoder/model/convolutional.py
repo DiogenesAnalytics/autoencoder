@@ -16,7 +16,7 @@ from .base import MetaLayer
 
 
 @dataclass
-class ConvolutionalParams(BaseModelParams):
+class ConvParams(BaseModelParams):
     """Model layer parameters class for convolutional autoencoder."""
 
     # default values from: https://blog.keras.io/building-autoencoders-in-keras.html
@@ -109,12 +109,12 @@ class ConvolutionalParams(BaseModelParams):
     l13: Optional[Dict[str, Any]] = None
 
 
-class ConvolutionalAutoencoder(BaseAutoencoder):
+class ConvAE(BaseAutoencoder):
     """A more convoluted autoencoder."""
 
-    _default_config = ConvolutionalParams()
+    _default_config = ConvParams()
 
-    def __init__(self, model_config: Optional[ConvolutionalParams] = None) -> None:
+    def __init__(self, model_config: Optional[ConvParams] = None) -> None:
         """Overrided base constructor to set the layer params class used."""
         # call super
         super().__init__(model_config=model_config)
