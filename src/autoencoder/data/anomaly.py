@@ -102,15 +102,16 @@ class ReconstructionError:
             # update errors list
             yield from mse.numpy()
 
-    def view_error_histogram(
+    def _plot_error_distribution(
         self,
-        title: str = "Reconstruction Error Histogram",
-        bins: int = 10**3,
-        label: str = "threshold_source",
-        additional_data: Optional[List["ReconstructionError"]] = None,
-        additional_labels: Optional[List[str]] = None,
+        title: str,
+        label: str,
+        density: bool,
+        additional_data: Optional[List["ReconstructionError"]],
+        additional_labels: Optional[List[str]],
+        alphas: Optional[List[float]],
+        bins: Optional[List[int]],
     ) -> None:
-        """Plot the reconstruction error distribution."""
         # setup list of data and labels
         error_data = [self.errors["reconstruction_error"].values.tolist()]
 
@@ -130,7 +131,66 @@ class ReconstructionError:
             # otherwise don't use any
             error_labels = None
 
+        # check for alphas
+        if alphas is None:
+            # determine alpha value
+            alph_val = 0.5 if len(error_data) > 1 else 1
+
+            # build alphas list
+            alphas = [alph_val] * len(error_data)
+
+        # check for bins
+        if bins is None:
+            # build default bins list
+            bins = [10**3] * len(error_data)
+
         # now plot
         plot_error_distribution(
-            error_data, self.threshold, bins, title, labels=error_labels
+            errors=error_data,
+            threshold=self.threshold,
+            title=title,
+            bins=bins,
+            alphas=alphas,
+            labels=error_labels,
+            density=density,
+        )
+
+    def histogram(
+        self,
+        title: str = "Reconstruction Error Histogram",
+        label: str = "threshold_source",
+        additional_data: Optional[List["ReconstructionError"]] = None,
+        additional_labels: Optional[List[str]] = None,
+        alphas: Optional[List[float]] = None,
+        bins: Optional[List[int]] = None,
+    ) -> None:
+        """Plot the reconstruction error as a histogram."""
+        self._plot_error_distribution(
+            title=title,
+            bins=bins,
+            label=label,
+            additional_data=additional_data,
+            additional_labels=additional_labels,
+            density=False,
+            alphas=alphas,
+        )
+
+    def probability_distribution(
+        self,
+        title: str = "Reconstruction Error Probability Distribution",
+        label: str = "threshold_source",
+        additional_data: Optional[List["ReconstructionError"]] = None,
+        additional_labels: Optional[List[str]] = None,
+        alphas: Optional[List[float]] = None,
+        bins: Optional[List[int]] = None,
+    ) -> None:
+        """Plot the reconstruction error as a probability distribution."""
+        self._plot_error_distribution(
+            title=title,
+            bins=bins,
+            label=label,
+            additional_data=additional_data,
+            additional_labels=additional_labels,
+            density=True,
+            alphas=alphas,
         )

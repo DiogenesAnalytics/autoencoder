@@ -59,17 +59,20 @@ def compare_image_predictions(
 def plot_error_distribution(
     errors: List[List[float]],
     threshold: float,
-    bins: int,
     title: str,
+    bins: List[int],
+    alphas: List[float],
     density: bool = False,
     labels: Optional[List[str]] = None,
 ) -> None:
     """Plot a simple histogram for the reconstruction error."""
-    # calculate alpha
-    alpha = 0.5 if len(errors) > 1 else None
-
     # build histogram
-    plt.hist(x=errors, alpha=alpha, bins=bins, density=density)
+    for (
+        err_data,
+        alph,
+        bn,
+    ) in zip(errors, alphas, bins, strict=True):
+        plt.hist(x=err_data, alpha=alph, bins=bn, density=density, stacked=False)
 
     # add title
     plt.title(title)
