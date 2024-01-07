@@ -4,7 +4,6 @@ from typing import Any
 from typing import Dict
 from typing import List
 from typing import Optional
-from typing import Tuple
 from typing import Union
 
 import matplotlib.pyplot as plt
@@ -58,14 +57,19 @@ def compare_image_predictions(
 
 
 def plot_error_distribution(
-    errors: Union[Tuple[float, ...], List[float]],
+    errors: List[List[float]],
     threshold: float,
     bins: int,
     title: str,
+    density: bool = False,
+    labels: Optional[List[str]] = None,
 ) -> None:
     """Plot a simple histogram for the reconstruction error."""
-    # create histogram plot
-    plt.hist(errors, bins=bins)
+    # calculate alpha
+    alpha = 0.5 if len(errors) > 1 else None
+
+    # build histogram
+    plt.hist(x=errors, alpha=alpha, bins=bins, density=density)
 
     # add title
     plt.title(title)
@@ -73,6 +77,10 @@ def plot_error_distribution(
     # label axes
     plt.xlabel("Reconstruction Error")
     plt.ylabel("# Samples")
+
+    # set legend
+    if labels is not None:
+        plt.legend(labels)
 
     # plotting threshold
     plt.axvline(x=threshold, color="r", linestyle="dashed", linewidth=2)

@@ -1,6 +1,6 @@
 """Tools for evaluating an autoencoder's perfomance on a dataset."""
+from dataclasses import InitVar
 from dataclasses import dataclass
-from pathlib import Path
 from typing import Any
 from typing import Generator
 from typing import List
@@ -9,32 +9,44 @@ from typing import Tuple
 from typing import Union
 
 import numpy as np
+import pandas as pd
 import tensorflow as tf
 from tqdm.auto import tqdm
 
 from ..model.base import BaseAutoencoder
-from .visualize import plot_anomalous_images
 from .visualize import plot_error_distribution
 
 
 @dataclass
-class AutoencoderEvaluator:
-    """Class for probing dataset using trained autoencoder."""
+class ReconstructionError:
+    """Class for generating the reconstruction error for a dataset."""
 
     ae: Union[tf.keras.Model, BaseAutoencoder]
     dataset: tf.data.Dataset
     axis: Tuple[int, ...] = (1, 2, 3)
+    file_paths: InitVar[Optional[List[str]]] = None
 
-    def __post_init__(self) -> None:
+    def __post_init__(self, file_paths: Optional[List[str]]) -> None:
         """Calculate and store errors, and threshold."""
-        # get the reconstrution error
-        self.errors: List[float] = list(self.gen_reconstruction_error())
+        # check file paths
+        if file_paths is None:
+            # get file paths from dataset
+            file_paths = self.get_file_paths(self.dataset)
 
-        # store threshold
-        self.threshold = self.calc_95th_threshold(self.errors)
+        # get the reconstrution error
+        self.errors = pd.DataFrame(
+            data=self.gen_reconstruction_error(),
+            columns=["reconstruction_error"],
+            index=file_paths,
+        )
+
+        # store 95th threshold
+        self.threshold = self.calc_95th_threshold(
+            self.errors["reconstruction_error"].values.tolist()
+        )
 
     @staticmethod
-    def has_file_paths(dataset: tf.data.Dataset) -> Optional[List[str]]:
+    def get_file_paths(dataset: tf.data.Dataset) -> Optional[List[str]]:
         """See if tf.data.Dataset has file_paths attribute."""
         # see if tensorflow dataset has custom file_paths attr
         return dataset.file_paths if hasattr(dataset, "file_paths") else None
@@ -90,22 +102,35 @@ class AutoencoderEvaluator:
             # update errors list
             yield from mse.numpy()
 
-    def view_error_distribution(
-        self, title: str = "Reconstruction Error Distribution", bins: int = 10**3
+    def view_error_histogram(
+        self,
+        title: str = "Reconstruction Error Histogram",
+        bins: int = 10**3,
+        label: str = "threshold_source",
+        additional_data: Optional[List["ReconstructionError"]] = None,
+        additional_labels: Optional[List[str]] = None,
     ) -> None:
         """Plot the reconstruction error distribution."""
-        plot_error_distribution(self.errors, self.threshold, bins, title)
+        # setup list of data and labels
+        error_data = [self.errors["reconstruction_error"].values.tolist()]
 
-    def view_anomalous_images(
-        self,
-        output_path: Optional[Union[str, Path]] = None,
-    ) -> None:
-        """Plot anomalous image inputs with their reconstructed outputs."""
-        # Use the trained autoencoder to predict and calculate reconstruction error
-        for batch_idx, (inputs, predictions, mse) in enumerate(
-            self.gen_batch_predictions()
-        ):
-            # now build, display, and optionally save images
-            plot_anomalous_images(
-                inputs, predictions, mse, self.threshold, batch_idx, output_path
-            )
+        # check for more data
+        if additional_data is not None:
+            # add in other data supplied
+            error_data += [
+                ds.errors["reconstruction_error"].tolist() for ds in additional_data
+            ]
+
+        # chek for more labels
+        if additional_labels is not None:
+            # get error labels
+            error_labels = [label] + additional_labels
+
+        else:
+            # otherwise don't use any
+            error_labels = None
+
+        # now plot
+        plot_error_distribution(
+            error_data, self.threshold, bins, title, labels=error_labels
+        )
