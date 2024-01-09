@@ -222,7 +222,7 @@ class AnomalyDetector:
         ), "Save method expects a new directory not an existing one."
 
         # now create it
-        output_path.mkdir()
+        output_path.mkdir(parents=True)
 
         # save errors dataframe
         self.errors.to_csv(output_path / "errors.csv", columns=["reconstruction_error"])
