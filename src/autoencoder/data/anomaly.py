@@ -401,8 +401,11 @@ class AnomalyDetector:
             # get path obj
             source_path = Path(path)
 
+            # get error string
+            err_str = "d".join(str(error).split("."))
+
             # new name
-            new_name = f"{idx}_{error}_{source_path.name}{source_path.suffix}"
+            new_name = f"{idx}_{err_str:.8}_{source_path.name}"
 
             # copy
             shutil.copy(path, destination_path / f"{label}/{new_name}")
