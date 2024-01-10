@@ -23,7 +23,7 @@ from .visualize import plot_error_distribution
 
 @dataclass
 class AnomalyDetector:
-    """Class for generating the reconstruction error for a dataset."""
+    """Class for detecting anomalies in a dataset."""
 
     ae: Union[tf.keras.Model, BaseAutoencoder]
     dataset: tf.data.Dataset
@@ -73,7 +73,7 @@ class AnomalyDetector:
             data=self.gen_reconstruction_error(),
             columns=["reconstruction_error"],
             index=file_paths,
-        )
+        ).rename_axis("path", axis="index")
 
         # store 95th threshold
         self.threshold = self.calc_95th_threshold(
@@ -213,6 +213,9 @@ class AnomalyDetector:
 
     def save(self, output_path: Union[str, Path]) -> None:
         """Save object instance data to path."""
+        # make sure there is something to save ...
+        self._check_data_attrs_set()
+
         # creat path obj
         output_path = Path(output_path)
 
@@ -225,12 +228,24 @@ class AnomalyDetector:
         output_path.mkdir(parents=True)
 
         # save errors dataframe
-        self.errors.to_csv(output_path / "errors.csv", columns=["reconstruction_error"])
+        self.errors.to_csv(
+            output_path / "reconstruction_error.csv",
+            columns=["reconstruction_error"],
+            index=True,
+            index_label="path",
+        )
 
         # open new JSON file
-        with open(output_path / "threshold.json", "w") as outfile:
+        with open(output_path / "attributes.json", "w") as outfile:
             # save threshold with pretty print
-            json.dump({"threshold": self.threshold}, outfile, indent=4)
+            json.dump(
+                {
+                    "threshold": self.threshold,
+                    "file_paths_exist": self._file_paths_exist,
+                },
+                outfile,
+                indent=4,
+            )
 
     def load(self, input_path: Union[str, Path]) -> None:
         """Load previously saved object instance data."""
@@ -241,12 +256,18 @@ class AnomalyDetector:
         assert input_path.exists(), "Load method cannot find directory path."
 
         # open threshold file
-        with open(input_path / "threshold.json") as infile:
+        with open(input_path / "attributes.json") as infile:
             # update threshold
-            self.threshold = json.load(infile)["threshold"]
+            attributes_dict = json.load(infile)
+
+            # update attrs
+            self.threshold = attributes_dict["threshold"]
+            self._file_paths_exist = attributes_dict["file_paths_exist"]
 
         # now get errors attribute
-        self.errors = pd.read_csv(input_path / "errors.csv")
+        self.errors = pd.read_csv(
+            input_path / "reconstruction_error.csv", index_col="path"
+        )
 
     @staticmethod
     def _build_mask_filter(
