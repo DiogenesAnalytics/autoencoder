@@ -1,5 +1,6 @@
-"""Tools for evaluating an autoencoder's perfomance on a dataset."""
+"""Tools for anomaly detection using autoencoders."""
 import json
+import random
 import shutil
 from dataclasses import dataclass
 from pathlib import Path
@@ -340,7 +341,7 @@ class AnomalyDetector:
         include_threshold_below: bool,
         include_threshold_above: bool,
         invert_labels: bool,
-        process_func: Callable[[str, float, str, int], None],
+        process_func: Callable[[str, float, Optional[str], int], None],
     ) -> None:
         """Get subset of reconstruction error data."""
         # make sure attrs set
@@ -380,7 +381,9 @@ class AnomalyDetector:
                 process_func(file_path, error, labels["above"], j)
 
     @staticmethod
-    def print_out_results(path: str, error: float, label: str, idx: int) -> None:
+    def print_out_results(
+        path: str, error: float, label: Optional[str], idx: int
+    ) -> None:
         """Simply prints out selected error data."""
         print(f"{label} {error:0.4f} {path}")
 
@@ -411,13 +414,15 @@ class AnomalyDetector:
     @staticmethod
     def _build_copy_func(
         destination_path: Union[str, Path]
-    ) -> Callable[[str, float, str, int], None]:
+    ) -> Callable[[str, float, Optional[str], int], None]:
         """Wrapper that builds the copy func for specified destination."""
         # get path obj
         destination_path = Path(destination_path)
 
         # build function
-        def copy_path_func(path: str, error: float, label: str, idx: int) -> None:
+        def copy_path_func(
+            path: str, error: float, label: Optional[str], idx: int
+        ) -> None:
             """Copies file from source to destination and names it using idx value."""
             # get path obj
             source_path = Path(path)
@@ -428,8 +433,11 @@ class AnomalyDetector:
             # new name
             new_name = f"{idx}_{err_str:.8}_{source_path.name}"
 
+            # get subdir
+            subdir = f"{label}/" if label is not None else ""
+
             # copy
-            shutil.copy(path, destination_path / f"{label}/{new_name}")
+            shutil.copy(path, destination_path / f"{subdir}{new_name}")
 
         # get function
         return copy_path_func
@@ -444,7 +452,7 @@ class AnomalyDetector:
         include_threshold_above: bool = True,
         invert_labels: bool = False,
     ) -> None:
-        """Extract files that match threshold conditions to destination path."""
+        """Copy all files that match threshold conditions to destination path."""
         # make sure attrs set
         self._check_data_attrs_set()
 
@@ -485,3 +493,40 @@ class AnomalyDetector:
             invert_labels=invert_labels,
             process_func=copy_path_func,
         )
+
+    def random_sample(
+        self,
+        destination_path: Union[str, Path],
+        elements: Optional[int] = None,
+        seed: Optional[int] = None,
+    ) -> None:
+        """Copy files randomly from reconstruction error DataFrame."""
+        # make sure attrs set
+        self._check_data_attrs_set()
+
+        # check file_paths exist
+        self._check_file_paths_available()
+
+        # get path obj
+        destination_path = Path(destination_path)
+
+        # make sure directory is not taken
+        assert (
+            not destination_path.exists()
+        ), "Cannot use existing directory for destination of random_sample() method."
+
+        # mkdir including parents
+        destination_path.mkdir(parents=True)
+
+        # build the copy function
+        copy_path_func = self._build_copy_func(destination_path)
+
+        # get k if none
+        n = elements if elements is not None else random.randint(0, len(self.errors))
+
+        # iterate over randomly sampled pandas dataframe
+        for j, (index, row) in enumerate(
+            self.errors.sample(n=n, random_state=seed).iterrows()
+        ):
+            # copy file to path
+            copy_path_func(str(index), row["reconstruction_error"], None, j)
