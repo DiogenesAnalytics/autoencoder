@@ -2,11 +2,11 @@
 __all__ = [
     "MinAE",
     "MinParams",
-    "Min2DAE",
-    "Min2DParams",
+    "MinNDAE",
+    "MinNDParams",
 ]
 
-from .van2d import Min2DAE
-from .van2d import Min2DParams
+from .van2d import MinNDAE
+from .van2d import MinNDParams
 from .vanilla import MinAE
 from .vanilla import MinParams

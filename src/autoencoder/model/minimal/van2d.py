@@ -1,7 +1,7 @@
 """A simple autoencoder to get you started."""
 __all__ = [
-    "Min2DAE",
-    "Min2DParams",
+    "MinNDAE",
+    "MinNDParams",
 ]
 from dataclasses import dataclass
 from typing import Any
@@ -20,16 +20,16 @@ from ..base import MetaLayer
 
 
 @dataclass
-class Min2DParams(BaseModelParams):
+class MinNDParams(BaseModelParams):
     """Layer parameters class for minimal autoencoder."""
 
     # default values from: https://blog.keras.io/building-autoencoders-in-keras.html
     default_parameters: ClassVar[Dict[str, MetaLayer]] = {
-        "l0": Inputs(layers.InputLayer, {"input_shape": (28, 28)}),
+        "l0": Inputs(layers.InputLayer, {"input_shape": (28, 28, 1)}),
         "l1": Encode(layers.Flatten, {}),
         "l2": Encode(layers.Dense, {"units": 32, "activation": "relu"}),
         "l3": Decode(layers.Dense, {"units": 28 * 28, "activation": "sigmoid"}),
-        "l4": Decode(layers.Reshape, {"target_shape": (28, 28)}),
+        "l4": Decode(layers.Reshape, {"target_shape": (28, 28, 1)}),
     }
 
     # setup instance layer params
@@ -40,12 +40,12 @@ class Min2DParams(BaseModelParams):
     l4: Optional[Dict[str, Any]] = None
 
 
-class Min2DAE(BaseAutoencoder):
+class MinNDAE(BaseAutoencoder):
     """A simple autoencoder to get you started."""
 
-    _default_config = Min2DParams()
+    _default_config = MinNDParams()
 
-    def __init__(self, model_config: Optional[Min2DParams] = None) -> None:
+    def __init__(self, model_config: Optional[MinNDParams] = None) -> None:
         """Overrided base constructor to set the layer params class used."""
         # call super
         super().__init__(model_config=model_config)
