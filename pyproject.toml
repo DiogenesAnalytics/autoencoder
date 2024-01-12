@@ -18,6 +18,8 @@ Changelog = "https://github.com/DiogenesAnalytics/autoencoder/releases"
 python = ">=3.9,<3.12"
 click = ">=8.0.1"
 keras = "~2.14"
+matplotlib = ">=3.8.2"
+pandas = ">=2.1.4"
 tensorflow = "~2.14"
 nvidia-cublas-cu11 = { version = "11.11.3.6", optional=true }
 nvidia-cuda-cupti-cu11 = { version = "11.8.87", optional=true }
