@@ -11,6 +11,21 @@ import tensorflow as tf
 from numpy.typing import NDArray
 
 
+def set_background_style(style: str) -> None:
+    """Set MatplotLib plot background style."""
+    plt.style.use(style)
+
+
+def toggle_dark_mode() -> None:
+    """Turn on dark mode."""
+    set_background_style("dark_background")
+
+
+def toggle_light_mode() -> None:
+    """Turn on light mode."""
+    set_background_style("default")
+
+
 def training_loss_history(
     history: Dict[str, List[float]], model_name: str = "Autoencoder"
 ) -> None:
@@ -144,3 +159,7 @@ def plot_anomalous_images(
 
     # close after plot
     plt.close()
+
+
+# toggle dark mode by default
+toggle_dark_mode()
