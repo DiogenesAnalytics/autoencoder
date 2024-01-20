@@ -14,7 +14,7 @@ def build_anomaly_loss_function(
     model: Union[keras.Model, BaseAutoencoder],
     axis: Tuple[int, ...] = (1, 2, 3),
 ) -> Callable[[tf.Tensor, tf.Tensor], tf.Tensor]:
-    """Wraps the custom anomaly detection loss function."""
+    """Closure that sets up the custom anomaly detection loss function."""
     # check model type
     if isinstance(model, BaseAutoencoder):
         # get keras.Model object
