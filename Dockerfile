@@ -1,5 +1,5 @@
 # jupyter base image
-FROM jupyter/scipy-notebook:lab-4.0.0 as cpu-only
+FROM quay.io/jupyter/scipy-notebook:lab-4.0.10 as cpu-only
 
 # first turn off git safe.directory
 RUN git config --global safe.directory '*'
