@@ -28,7 +28,7 @@ def build_anomaly_loss_function(
         """Calculates mean training/anomalous data reconstruction error difference."""
         # calculate the dynamic mean reconstruction error on training data
         train_reconstruction_errors = tf.reduce_mean(
-            tf.square(y_true - y_pred), axis=(1, 2, 3)
+            tf.square(y_true - y_pred), axis=axis
         )
         dynamic_threshold = tf.reduce_mean(train_reconstruction_errors)
 
