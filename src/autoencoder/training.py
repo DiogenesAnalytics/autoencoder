@@ -1,5 +1,7 @@
 """All things related to training autoencoders."""
+from dataclasses import dataclass
 from typing import Callable
+from typing import Optional
 from typing import Tuple
 from typing import Union
 
@@ -48,28 +50,53 @@ def build_anomaly_loss_function(
     return optimized_func
 
 
-def build_encode_dim_loss_function(
-    encode_dim: int,
-    regularization_factor: float = 0.001,
-    axis: Tuple[int, ...] = (1, 2, 3),
-) -> Callable[[tf.Tensor, tf.Tensor], tf.Tensor]:
-    """Closure that sets up the custom encode dim loss function."""
-    # calculate the encoding dim loss
-    encode_dim_loss = encode_dim * regularization_factor
+@dataclass
+class build_encode_dim_loss_function:  # noqa
+    """Decorator factory class to build a penalized loss function."""
 
-    # create function
-    def penalize_encode_dimension(y_true: tf.Tensor, y_pred: tf.Tensor) -> tf.Tensor:
-        """Penalizes loss with additional encoding dimension value."""
-        # calculate the dynamic mean reconstruction error on training data
-        reconstruction_loss = tf.reduce_mean(tf.square(y_true - y_pred), axis=axis)
+    encode_dim: int
+    regularization_factor: float = 0.001
+    axis: Tuple[int, ...] = (1, 2, 3)
 
-        # calculate penalized loss
-        return reconstruction_loss + encode_dim_loss
+    def __call__(
+        self,
+        penalized_loss: Optional[Callable[[tf.Tensor, int, float], tf.Tensor]] = None,
+    ) -> Callable[[tf.Tensor, tf.Tensor], tf.Tensor]:
+        """Call decorator to build custom penalized loss function."""
+        return self.decorate(penalized_loss)
 
-    # optimize with tf.function
-    optimized_func: Callable[[tf.Tensor, tf.Tensor], tf.Tensor] = tf.function(
-        penalize_encode_dimension
-    )
+    @staticmethod
+    def default_penalty(loss: tf.Tensor, encode: int, reg: float) -> tf.Tensor:
+        """Calculate the default penalty for the encoding dimension."""
+        return loss + (loss * encode * reg)
 
-    # get wrapped function
-    return optimized_func
+    def decorate(
+        self,
+        penalized_loss: Optional[Callable[[tf.Tensor, int, float], tf.Tensor]] = None,
+    ) -> Callable[[tf.Tensor, tf.Tensor], tf.Tensor]:
+        """Decorator that builds the complete penalized loss function."""
+        # check for none
+        if penalized_loss is None:
+            # get default
+            penalized_loss = self.default_penalty
+
+        # create function
+        def custom_loss(y_true: tf.Tensor, y_pred: tf.Tensor) -> tf.Tensor:
+            """Calculate reconstruction error and apply penalty."""
+            # calculate the dynamic mean reconstruction error on training data
+            reconstruction_loss = tf.reduce_mean(
+                tf.square(y_true - y_pred), axis=self.axis
+            )
+
+            # calculate penalized loss
+            return penalized_loss(
+                reconstruction_loss, self.encode_dim, self.regularization_factor
+            )
+
+        # optimize with tf.function
+        optimized_func: Callable[[tf.Tensor, tf.Tensor], tf.Tensor] = tf.function(
+            custom_loss
+        )
+
+        # get wrapped function
+        return optimized_func
