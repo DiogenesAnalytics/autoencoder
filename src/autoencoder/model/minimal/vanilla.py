@@ -14,8 +14,8 @@ from keras import layers
 from ..base import BaseAutoencoder
 from ..base import BaseModelParams
 from ..base import Decode
-from ..base import Encode
 from ..base import Inputs
+from ..base import Latent
 from ..base import MetaLayer
 
 
@@ -26,7 +26,7 @@ class MinParams(BaseModelParams):
     # default values from: https://blog.keras.io/building-autoencoders-in-keras.html
     default_parameters: ClassVar[Dict[str, MetaLayer]] = {
         "l0": Inputs(layers.InputLayer, {"input_shape": (784,)}),
-        "l1": Encode(layers.Dense, {"units": 32, "activation": "relu"}),
+        "l1": Latent(layers.Dense, {"units": 32, "activation": "relu"}),
         "l2": Decode(layers.Dense, {"units": 784, "activation": "sigmoid"}),
     }
 

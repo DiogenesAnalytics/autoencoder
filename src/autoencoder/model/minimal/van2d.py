@@ -16,6 +16,7 @@ from ..base import BaseModelParams
 from ..base import Decode
 from ..base import Encode
 from ..base import Inputs
+from ..base import Latent
 from ..base import MetaLayer
 
 
@@ -27,7 +28,7 @@ class MinNDParams(BaseModelParams):
     default_parameters: ClassVar[Dict[str, MetaLayer]] = {
         "l0": Inputs(layers.InputLayer, {"input_shape": (28, 28, 1)}),
         "l1": Encode(layers.Flatten, {}),
-        "l2": Encode(layers.Dense, {"units": 32, "activation": "relu"}),
+        "l2": Latent(layers.Dense, {"units": 32, "activation": "relu"}),
         "l3": Decode(layers.Dense, {"units": 28 * 28, "activation": "sigmoid"}),
         "l4": Decode(layers.Reshape, {"target_shape": (28, 28, 1)}),
     }

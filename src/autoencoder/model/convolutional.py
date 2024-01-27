@@ -12,6 +12,7 @@ from .base import BaseModelParams
 from .base import Decode
 from .base import Encode
 from .base import Inputs
+from .base import Latent
 from .base import MetaLayer
 
 
@@ -51,7 +52,7 @@ class ConvParams(BaseModelParams):
                 "padding": "same",
             },
         ),
-        "l6": Encode(layers.MaxPooling2D, {"pool_size": (2, 2), "padding": "same"}),
+        "l6": Latent(layers.MaxPooling2D, {"pool_size": (2, 2), "padding": "same"}),
         "l7": Decode(
             layers.Conv2D,
             {

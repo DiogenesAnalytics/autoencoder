@@ -12,6 +12,7 @@ from .base import BaseModelParams
 from .base import Decode
 from .base import Encode
 from .base import Inputs
+from .base import Latent
 from .base import MetaLayer
 
 
@@ -24,7 +25,7 @@ class DeepParams(BaseModelParams):
         "l0": Inputs(layers.InputLayer, {"input_shape": (784,)}),
         "l1": Encode(layers.Dense, {"units": 128, "activation": "relu"}),
         "l2": Encode(layers.Dense, {"units": 64, "activation": "relu"}),
-        "l3": Encode(layers.Dense, {"units": 32, "activation": "relu"}),
+        "l3": Latent(layers.Dense, {"units": 32, "activation": "relu"}),
         "l4": Decode(layers.Dense, {"units": 64, "activation": "relu"}),
         "l5": Decode(layers.Dense, {"units": 128, "activation": "relu"}),
         "l6": Decode(layers.Dense, {"units": 784, "activation": "sigmoid"}),

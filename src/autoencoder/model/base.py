@@ -40,6 +40,10 @@ class Inputs(MetaLayer):
     """Designate a meta layer as an input layer."""
 
 
+class Latent(MetaLayer):
+    """Designate a meta layer as a latent/code layer."""
+
+
 class BaseModelParams(ABC):
     """Autoencoder model layer hyperparameters configuration base class."""
 
@@ -162,6 +166,10 @@ class BaseAutoencoder(ABC):
             elif isinstance(meta_layer, Inputs):
                 # add to total autoencoder layer
                 all_layers.append(layer)
+
+            elif isinstance(meta_layer, Latent):
+                # add to encode autoencoder layer
+                encode_layers.append(layer)
 
             else:
                 # get unknown type
